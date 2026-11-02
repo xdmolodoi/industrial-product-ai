@@ -1,0 +1,2 @@
+git remote add origin https://github.com/ТВОЙ_ЛОГИН/industrial-product-ai.git
+git push -u origin main
