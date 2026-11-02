@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI-помощник товарных карточек</title>
+  <style>
+    :root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#182230;background:#f4f6f8}*{box-sizing:border-box}
+    body{margin:0;padding:36px 16px}.wrap{max-width:980px;margin:auto}.panel{background:white;border:1px solid #e3e8ef;border-radius:14px;padding:24px;box-shadow:0 8px 28px #1522380a}
+    h1{margin:0 0 8px;font-size:26px}p{color:#667085;line-height:1.5}.hint{font-size:13px}textarea{width:100%;min-height:350px;padding:14px;border:1px solid #cfd6df;border-radius:9px;font:14px/1.5 ui-monospace,monospace;resize:vertical}
+    button{background:#185adb;color:white;border:0;border-radius:9px;padding:12px 18px;font-weight:600;cursor:pointer;margin-top:14px}button:disabled{opacity:.6;cursor:wait}
+    pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#101828;color:#e6edf7;padding:18px;border-radius:10px;min-height:80px} .error{color:#b42318}
+  </style>
+</head>
+<body><main class="wrap"><section class="panel">
+  <h1>AI-помощник товарных карточек</h1>
+  <p>Вставьте JSON с данными контрольно-измерительного прибора. Сервис подготовит SEO-черновик, характеристики и подсказки менеджеру.</p>
+  <label for="payload"><b>Данные товара (JSON)</b></label>
+  <textarea id="payload" spellcheck="false">{{ example }}</textarea>
+  <div><button id="run">Сгенерировать карточку</button></div>
+  <p class="hint">Технические характеристики берутся из входных данных. Для работы нужен OPENAI_API_KEY в файле .env.</p>
+  <h2>Результат</h2><pre id="result">Здесь появится результат генерации.</pre>
+</section></main>
+<script>
+const button=document.getElementById('run'), output=document.getElementById('result');
+button.addEventListener('click',async()=>{
+  button.disabled=true;output.textContent='Генерация...';output.className='';
+  try{
+    const data=JSON.parse(document.getElementById('payload').value);
+    const response=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    const result=await response.json();
+    if(!response.ok) throw new Error(typeof result.detail==='string'?result.detail:JSON.stringify(result.detail,null,2));
+    output.textContent=JSON.stringify(result.card,null,2);
+  }catch(error){output.textContent=error.message;output.className='error';}
+  finally{button.disabled=false;}
+});
+</script></body></html>
